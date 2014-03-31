@@ -108,6 +108,7 @@ class cobbler (
   $authn_module       = $cobbler::params::authn_module,
   $authz_module       = $cobbler::params::authz_module,
   $puppetca_path      = $cobbler::params::puppetca_path,
+  $dhcp_conf          = $cobbler::params::dhcp_conf,
 ) inherits cobbler::params {
 
   # require apache modules
