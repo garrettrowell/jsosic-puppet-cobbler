@@ -5,7 +5,8 @@
 #
 class cobbler::dhcp (
   $nameservers     = $cobbler::params::nameservers,
-  $dhcp_interfaces = $cobbler::params::dhcp_interfaces
+  $dhcp_interfaces = $cobbler::params::dhcp_interfaces,
+  $dhcp_conf       = $cobbler::params::dhcp_conf,
   ) inherits cobbler::params {
   package { 'dhcp':
     ensure => present,
