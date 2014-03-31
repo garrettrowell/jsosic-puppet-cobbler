@@ -51,10 +51,10 @@ elsif (nameservers.kind_of?(String) && nameservers != '' )
 else
    puts("127.0.0.1")
 end %>;
-    option routers              <%= conf['router'] %>
+    option routers              <%= conf['router'] %>;
     filename                    "/pxelinux.0";
     <% if dhcp_dynamic_range == 1 then %>
-    range dynamic-bootp         <%= conf['dhcp_start'] %> <%= conf['dhcp_end'] %>
+    range dynamic-bootp         <%= conf['dhcp_start'] %> <%= conf['dhcp_end'] %>;
     <% end -%>
     default-lease-time          21600;
     max-lease-time              43200;
