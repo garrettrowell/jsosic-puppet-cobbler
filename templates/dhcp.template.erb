@@ -40,9 +40,9 @@ end %>;
 <% end -%>
 
 <% dhcp_conf.each do |conf| -%>
-subnet <%= conf['subnet'] %> netmask 255.255.255.0 {
+subnet <%= conf['subnet'] %> netmask <%= conf['netmask'] %> {
     option domain-name          "<%= domain %>";
-    option subnet-mask          255.255.255.0;
+    option subnet-mask          <%= conf['netmask'] %>;
     option domain-name-servers  <%=
 if nameservers.kind_of?(Array)
    nameservers.join(", ")
