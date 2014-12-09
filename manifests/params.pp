@@ -58,4 +58,13 @@ class cobbler::params {
   # Modules for web
   $authn_module = 'authn_denyall'
   $authz_module = 'authz_allowall'
+
+  $ldap_servers        = undef
+  $ldap_base_dn        = ''
+  $ldap_search_bind_dn = ''
+  $ldap_search_passwd  = ''
+  $ldap_search_prefix  = 'uid='
+
+  $manage_users = false
+  $users        = []
 }

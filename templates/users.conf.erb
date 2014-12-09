@@ -1,0 +1,10 @@
+#########################################################
+## This file is managed by puppet.
+## Any changes you make will be undone.
+## Config for this file resides in jsosic-puppet-cobbler.
+#########################################################
+
+[puppet]
+<% @users.each do |user| -%>
+<%= user %> = ""
+<% end -%>

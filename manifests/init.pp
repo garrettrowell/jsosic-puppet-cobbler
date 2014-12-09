@@ -73,6 +73,30 @@
 #   - $puppetca_path [type: string]
 #     The path to the puppet ca binary.
 #
+#   - $dhcp_conf [type: array of hashes]
+#     Hash of information for configuring additional DHCP options.
+#
+#   - $ldap_servers [type: array]
+#     A list of LDAP servers to search.
+#
+#   - $ldap_base_dn [type: string]
+#     Base DN to search in LDAP.
+#
+#   - $ldap_search_bind_dn [type: string]
+#     DN used to connect to DC.
+#
+#   - $ldap_search_passwd [type: string]
+#     Password for above DN.
+#
+#   - $ldap_search_prefix [type: string]
+#     Attribute that LDAP should check against.
+#
+#   - $manage_users [type: bool]
+#     Whether or not to manage the users.conf file with puppet.
+#
+#   - $users [type: array]
+#     List of users placed in users.conf for authorization.
+#
 # Actions:
 #   - Install Apache
 #   - Manage Apache service
@@ -84,31 +108,38 @@
 # Sample Usage:
 #
 class cobbler (
-  $service_name       = $cobbler::params::service_name,
-  $package_name       = $cobbler::params::package_name,
-  $package_ensure     = $cobbler::params::package_ensure,
-  $distro_path        = $cobbler::params::distro_path,
-  $manage_dhcp        = $cobbler::params::manage_dhcp,
-  $dhcp_dynamic_range = $cobbler::params::dhcp_dynamic_range,
-  $manage_dns         = $cobbler::params::manage_dns,
-  $dns_option         = $cobbler::params::dns_option,
-  $manage_tftpd       = $cobbler::params::manage_tftpd,
-  $tftpd_option       = $cobbler::params::tftpd_option,
-  $server_ip          = $cobbler::params::server_ip,
-  $next_server_ip     = $cobbler::params::next_server_ip,
-  $nameservers        = $cobbler::params::nameservers,
-  $dhcp_interfaces    = $cobbler::params::dhcp_interfaces,
-  $defaultrootpw      = $cobbler::params::defaultrootpw,
-  $apache_service     = $cobbler::params::apache_service,
-  $allow_access       = $cobbler::params::allow_access,
-  $purge_distro       = $cobbler::params::purge_distro,
-  $purge_repo         = $cobbler::params::purge_repo,
-  $purge_profile      = $cobbler::params::purge_profile,
-  $purge_system       = $cobbler::params::purge_system,
-  $authn_module       = $cobbler::params::authn_module,
-  $authz_module       = $cobbler::params::authz_module,
-  $puppetca_path      = $cobbler::params::puppetca_path,
-  $dhcp_conf          = $cobbler::params::dhcp_conf,
+  $service_name        = $cobbler::params::service_name,
+  $package_name        = $cobbler::params::package_name,
+  $package_ensure      = $cobbler::params::package_ensure,
+  $distro_path         = $cobbler::params::distro_path,
+  $manage_dhcp         = $cobbler::params::manage_dhcp,
+  $dhcp_dynamic_range  = $cobbler::params::dhcp_dynamic_range,
+  $manage_dns          = $cobbler::params::manage_dns,
+  $dns_option          = $cobbler::params::dns_option,
+  $manage_tftpd        = $cobbler::params::manage_tftpd,
+  $tftpd_option        = $cobbler::params::tftpd_option,
+  $server_ip           = $cobbler::params::server_ip,
+  $next_server_ip      = $cobbler::params::next_server_ip,
+  $nameservers         = $cobbler::params::nameservers,
+  $dhcp_interfaces     = $cobbler::params::dhcp_interfaces,
+  $defaultrootpw       = $cobbler::params::defaultrootpw,
+  $apache_service      = $cobbler::params::apache_service,
+  $allow_access        = $cobbler::params::allow_access,
+  $purge_distro        = $cobbler::params::purge_distro,
+  $purge_repo          = $cobbler::params::purge_repo,
+  $purge_profile       = $cobbler::params::purge_profile,
+  $purge_system        = $cobbler::params::purge_system,
+  $authn_module        = $cobbler::params::authn_module,
+  $authz_module        = $cobbler::params::authz_module,
+  $puppetca_path       = $cobbler::params::puppetca_path,
+  $dhcp_conf           = $cobbler::params::dhcp_conf,
+  $ldap_servers        = $cobbler::params::ldap_servers,
+  $ldap_base_dn        = $cobbler::params::ldap_base_dn,
+  $ldap_search_bind_dn = $cobbler::params::ldap_search_bind_dn,
+  $ldap_search_passwd  = $cobbler::params::ldap_search_passwd,
+  $ldap_search_prefix  = $cobbler::params::ldap_search_prefix,
+  $manage_users        = $cobbler::params::manage_users,
+  $users               = $cobbler::params::users,
 ) inherits cobbler::params {
 
   # require apache modules
@@ -122,6 +153,12 @@ class cobbler (
   package { $package_name :
     ensure  => $package_ensure,
     require => [ Package['syslinux'], Package['tftp-server'], ],
+  }
+
+  if $ldap_servers != undef {
+    package { 'python-ldap':
+      ensure => present,
+    }
   }
 
   service { $service_name :
@@ -193,10 +230,16 @@ class cobbler (
     }
     file { '/etc/cobbler/dhcp.template':
       ensure  => present,
-      owner   => root,
-      group   => root,
-      mode    => '0644',
       content => template('cobbler/dhcp.template.erb'),
+      require => Package[$package_name],
+      notify  => Exec['cobblersync'],
+    }
+  }
+
+  if $manage_users == true {
+    file { '/etc/cobbler/users.conf':
+      ensure  => present,
+      content => template('cobbler/users.conf.erb'),
       require => Package[$package_name],
       notify  => Exec['cobblersync'],
     }
