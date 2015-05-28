@@ -250,6 +250,7 @@ class cobbler (
     selboolean { 'cobbler_can_network_connect':
       persistent => true,
       value      => 'on',
+    }
   }
 }
 # vi:nowrap:
