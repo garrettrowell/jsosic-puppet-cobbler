@@ -140,6 +140,7 @@ class cobbler (
   $ldap_search_prefix  = $cobbler::params::ldap_search_prefix,
   $manage_users        = $cobbler::params::manage_users,
   $users               = $cobbler::params::users,
+  $manage_selinux      = $cobbler::params::manage_selinux,
 ) inherits cobbler::params {
 
   # require apache modules
@@ -243,6 +244,12 @@ class cobbler (
       require => Package[$package_name],
       notify  => Exec['cobblersync'],
     }
+  }
+
+  if $manage_selinux == true {
+    selboolean { 'cobbler_can_network_connect':
+      persistent => true,
+      value      => 'on',
   }
 }
 # vi:nowrap:

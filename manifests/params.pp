@@ -67,4 +67,6 @@ class cobbler::params {
 
   $manage_users = false
   $users        = []
+
+  $manage_selinux = false
 }
